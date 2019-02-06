@@ -1,0 +1,138 @@
+apiVersion: serving.knative.dev/v1alpha1
+kind: Service
+metadata:
+  name: myservice
+  namespace: default
+  labels:
+    knative.dev/type: "function"  # convention, one of "function" or "app"
+  # system generated meta
+  uid: ...
+  resourceVersion: ...  # used for optimistic concurrency control
+  creationTimestamp: ...
+  generation: ...
+  selfLink: ...
+  ...
+
+# spec contains one of several possible rollout styles
+spec:  # One of "runLatest", "release", "pinned" (DEPRECATED), or "manual"
+
+  # Example, only one of "runLatest", "release", "pinned" (DEPRECATED), or "manual" can be set in practice.
+  runLatest:
+    configuration:  # serving.knative.dev/v1alpha1.ConfigurationSpec
+      # +optional. The build resource to instantiate to produce the container.
+      build: ...
+
+      container:  # core.v1.Container
+        image: gcr.io/...
+        command: ['run']
+        args: []
+        env:  # list of environment vars
+        - name: FOO
+          value: bar
+        - name: HELLO
+          value: world
+        - ...
+        livenessProbe: ...  # Optional
+        readinessProbe: ...  # Optional
+      containerConcurrency: ... # Optional
+      timeoutSeconds: ...
+      serviceAccountName: ...  # Name of the service account the code should run as
+
+  # Example, only one of "runLatest", "release", "pinned" (DEPRECATED), or "manual" can be set in practice.
+  pinned:
+    revisionName: myservice-00013  # Auto-generated revision name
+    configuration:  # serving.knative.dev/v1alpha1.ConfigurationSpec
+      # +optional. The build resource to instantiate to produce the container.
+      build: ...
+
+      container:  # core.v1.Container
+        image: gcr.io/...
+        command: ['run']
+        args: []
+        env:  # list of environment vars
+        - name: FOO
+          value: bar
+        - name: HELLO
+          value: world
+        - ...
+        livenessProbe: ...  # Optional
+        readinessProbe: ...  # Optional
+        resources: ...  # Optional
+      containerConcurrency: ... # Optional
+      timeoutSeconds: ...
+      serviceAccountName: ...  # Name of the service account the code should run as
+
+  # Example, only one of "runLatest", "release", "pinned" (DEPRECATED), or "manual" can be set in practice.
+  release:
+    # Ordered list of 1 or 2 revisions. First revision is traffic target
+    # "current" and second revision is traffic target "candidate".
+    revisions: ["myservice-00013", "myservice-00015"]
+    rolloutPercent: 50 # Percent [0-99] of traffic to route to "candidate" revision
+    configuration:  # serving.knative.dev/v1alpha1.ConfigurationSpec
+      # +optional. The build resource to instantiate to produce the container.
+      build: ...
+
+      container:  # core.v1.Container
+        image: gcr.io/...
+        command: ['run']
+        args: []
+        env:  # list of environment vars
+        - name: FOO
+          value: bar
+        - name: HELLO
+          value: world
+        - ...
+        livenessProbe: ...  # Optional
+        readinessProbe: ...  # Optional
+      containerConcurrency: ... # Optional
+      timeoutSeconds: ...
+      serviceAccountName: ...  # Name of the service account the code should run as
+
+  # Example, only one of "runLatest", "release", "pinned" (DEPRECATED), or "manual" can be set in practice.
+  # Manual has no fields. It enables direct access to modify a previously created
+  # Route and Configuration
+  manual: {}
+status:
+  # This information is copied from the owned Configuration and Route.
+
+  # The latest created and ready to serve Revision.
+  latestReadyRevisionName: abc
+  # Latest created Revision, may still be in the process of being materialized.
+  latestCreatedRevisionName: def
+
+  # domain: The hostname used to access the default (traffic-split)
+  #   route. Typically, this will be composed of the name and namespace
+  #   along with a cluster-specific prefix (here, mydomain.com).
+  domain: myservice.default.mydomain.com
+
+  address: # knative/pkg/apis/duck/v1alpha1.Addressable
+    # hostname: A DNS name for the default (traffic-split) route which can
+    # be accessed without leaving the cluster environment.
+    hostname: myservice.default.svc.cluster.local
+
+  # DEPRECATED: see address.hostname (above)
+  domainInternal: ...
+
+  # current rollout status list. configurationName references
+  #   are dereferenced to latest revision
+  traffic:
+  - revisionName: ...  # latestReadyRevisionName from a configurationName in spec
+    name: ...
+    percent: ...  # percentages add to 100. 0 is a valid list value
+  - ...
+
+  conditions:  # See also the documentation in errors.md
+  - type: Ready
+    status: False
+    reason: RevisionMissing
+    message: "Revision 'qyzz' referenced in traffic not found"
+  - type: ConfigurationsReady
+    status: False
+    reason: ContainerMissing
+    message: "Unable to start because container is missing failed."
+  - type: RoutesReady
+    status: False
+    reason: RevisionMissing
+    message: "Revision 'qyzz' referenced in traffic not found"
+
+  observedGeneration: ...  # last generation bein

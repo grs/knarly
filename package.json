@@ -1,0 +1,14 @@
+{
+    "name" : "qds",
+    "version": "0.0.1",
+    "description": "KNative servicing via Qpid Dispatch Router",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/grs/qds"
+    },
+    "dependencies": {
+        "debug": ">=0.8.0",
+        "rhea": ">=0.2.5"
+    }
+}

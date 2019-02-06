@@ -1,0 +1,7 @@
+oc login -u system:admin
+oc create -f ./config/service-crd.yaml
+oc create -f ./config/eventing-crd.yaml
+oc apply -f ./config/rbac-crd.yaml
+oc apply -f ./config/rbac-eventing-crd.yaml
+oc login -u developer
+oc create -f ./config/helloworld.1.yaml
